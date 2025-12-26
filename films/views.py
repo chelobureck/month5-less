@@ -12,7 +12,7 @@ def film_list_api_view(request):
     получает фильмы с бд в виде QuerySet
     переформатирует в Serialize
     """
-    films = FilmModel.objects.all()
+    films = FilmModel.objects.select_related('director').prefetch_related('reviews', 'genre').all()
 
     data = FilmListSerializer(films, many=True).data
 
