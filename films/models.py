@@ -23,7 +23,7 @@ class FilmModel(models.Model):
     title = models.CharField(max_length=255)
     text = models.CharField(null=True, blank=True)
     rating = models.FloatField()
-    release_year = models.IntegerField()
+    relaese_year = models.IntegerField()
     is_hit = models.BooleanField(default=True)
     created = models.DateTimeField(auto_now_add=True)
     updated = models.DateTimeField(auto_now=True)
