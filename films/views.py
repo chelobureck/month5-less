@@ -3,7 +3,7 @@ from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
 from films.models import FilmModel
-from films.serializers import FilmListSerializer, FilmDetailSerializer
+from films.serializers import FilmListSerializer, FilmDetailSerializer, FilmValidateSerializer
 
 
 @api_view(['GET', 'POST'])
@@ -19,14 +19,17 @@ def film_list_api_view(request):
 
         return Response(data=data, status=status.HTTP_200_OK)
     if request.method == "POST":
-        print(request.data)
-        title = request.data.get('title')
-        text = request.data.get('text')
-        relaese_year = request.data.get('relaese_year')
-        rating = request.data.get('rating')
-        is_hit = request.data.get('is_hit')
-        director_id = request.data.get("director_id")
-        genres = request.data.get("genres")
+        serializer = FilmValidateSerializer(data=request.data)
+        if not serializer.is_valid():
+            return Response(status=status.HTTP_400_BAD_REQUEST, 
+                            data=serializer.errors)
+        title = serializer.validated_data.get('title') # type: ignore
+        text = serializer.validated_data.get('text') # type: ignore
+        relaese_year = serializer.validated_data.get('relaese_year') # type: ignore
+        rating = serializer.validated_data.get('rating') # type: ignore
+        is_hit = serializer.validated_data.get('is_hit') # type: ignore
+        director_id = serializer.validated_data.get("director_id") # type: ignore
+        genres = serializer.validated_data.get("genres") # type: ignore
 
         film = FilmModel.objects.create(
             title=title,
@@ -36,7 +39,7 @@ def film_list_api_view(request):
             is_hit=is_hit,
             director_id=director_id
         )
-        film.genre.set(genres)
+        film.genre.set(genres) # type: ignore
 
         return Response(status=status.HTTP_201_CREATED, data=FilmDetailSerializer(film).data)
 
@@ -56,13 +59,15 @@ def film_detail_api_view(request, film_id):
 
         return Response(data=data, status=status.HTTP_200_OK)
     if request.method == 'PUT':
-        film.title = request.data.get("title")
-        film.text = request.data.get("text")
-        film.relaese_year = request.data.get("relaese_year")
-        film.rating = request.data.get("rating")
-        film.is_hit = request.data.get("is_hit")
-        film.director_id = request.data.get("director_id") #type: ignore
-        film.genre.set(request.data.get("genres"))
+        serializer = FilmValidateSerializer(request.data)
+        serializer.is_valid(raise_exception=True)
+        film.title = serializer.validated_data.get("title") # type: ignore
+        film.text = serializer.validated_data.get("text") # type: ignore
+        film.relaese_year = serializer.validated_data.get("relaese_year") # type: ignore
+        film.rating = serializer.validated_data.get("rating") # type: ignore
+        film.is_hit = serializer.validated_data.get("is_hit") # type: ignore
+        film.director_id = serializer.validated_data.get("director_id") #type: ignore
+        film.genre.set(serializer.validated_data.get("genres")) # type: ignore
         film.save()
         return Response(status=status.HTTP_201_CREATED, data=FilmDetailSerializer(film).data)
     
