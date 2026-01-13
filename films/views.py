@@ -2,8 +2,29 @@ from django.shortcuts import render
 from rest_framework.decorators import api_view
 from rest_framework.response import Response
 from rest_framework import status
-from films.models import FilmModel
-from films.serializers import FilmListSerializer, FilmDetailSerializer, FilmValidateSerializer
+from films.models import FilmModel, GenresModel, DirectorModel
+from films.serializers import FilmListSerializer, FilmDetailSerializer, FilmValidateSerializer, GenreSerializer, DirectorSerializer
+from rest_framework.generics import ListAPIView, ListCreateAPIView, RetrieveUpdateDestroyAPIView
+from rest_framework.pagination import PageNumberPagination
+from rest_framework.viewsets import ModelViewSet
+
+
+class DirectorViewSet(ModelViewSet):
+    queryset = DirectorModel.objects.all()
+    serializer_class = DirectorSerializer
+    pagination_class = PageNumberPagination
+    lookup_field = 'id'
+
+
+class GenreDetailAPIView(RetrieveUpdateDestroyAPIView):
+    queryset = GenresModel.objects.all()
+    serializer_class = GenreSerializer
+    lookup_field = 'id'
+
+class GenreListAPIView(ListCreateAPIView):
+    queryset = GenresModel.objects.all()
+    serializer_class = GenreSerializer
+    pagination_class = PageNumberPagination
 
 
 @api_view(['GET', 'POST'])
